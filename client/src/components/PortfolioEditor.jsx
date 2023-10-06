@@ -1,10 +1,15 @@
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 
 export const ImageForm = ({ onSubmit }) => {
   const [liveSiteLink, setLiveSiteLink] = useState('');
   const [githubLink, setGithubLink] = useState('');
   const [caption, setCaption] = useState('');
   const [images, setImages] = useState([]);
+
+ImageForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired
+}
 
   const handleImageUpload = (e) => {
     const files = e.target.files;

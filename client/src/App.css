@@ -14,3 +14,14 @@
 
 }
 
+#sign-up, #login {
+  text-decoration: none;
+  padding-left: 2%;
+  margin-right: 2%;
+  float: right;
+}
+
+h1{
+  text-align: center;
+}
+

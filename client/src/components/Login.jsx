@@ -54,7 +54,7 @@ console.log(response);
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
-      HandleLogin()
+      HandleLogin();
     }
   };
 

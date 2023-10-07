@@ -37,9 +37,35 @@ ImageForm.propTypes = {
     }
   };
 
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
-    onSubmit({ liveSiteLink, githubLink, caption, images });
+    const requestBody = {
+      siteLink: liveSiteLink,
+      githubLink: githubLink,
+      caption: caption,
+      image_data: images
+    };
+
+    try {
+      const response = await fetch('http://localhost:5000/project-add', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody)
+      });
+  
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
+  
+      //const data = await response.json();
+  
+      onSubmit({ liveSiteLink, githubLink, caption, images });
+    } catch (error) {
+      console.error('There has been a problem with your fetch operation:', error);
+      // Handle error state, complete this later
+    }
   };
 
   return (

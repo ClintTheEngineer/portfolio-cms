@@ -109,11 +109,11 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
   });
 
 
-app.post('project-add', async (req, res) => {
+app.post('/project-add', async (req, res) => {
   try {
     const { siteLink, githubLink, caption, image_data } = req.body;
     await pool.query(
-    'INSERT INTO Portfolio_Editor (live_site_link, github_link, caption, image_data) VALUES ($1, $2, $3, $4)'
+    'INSERT INTO Portfolio_Editor (live_site_link, github_link, caption, image_data) VALUES ($1, $2, $3, $4)',
     [siteLink, githubLink, caption, image_data]);
     res.status(201).json({ message: 'Project added successfully'})
   } catch (error) {

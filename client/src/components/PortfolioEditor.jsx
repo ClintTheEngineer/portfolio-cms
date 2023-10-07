@@ -1,11 +1,19 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { LogoutButton } from './LogoutButton';
+import { useNavigate } from "react-router";
 
 export const ImageForm = ({ onSubmit }) => {
   const [liveSiteLink, setLiveSiteLink] = useState('');
   const [githubLink, setGithubLink] = useState('');
   const [caption, setCaption] = useState('');
   const [images, setImages] = useState([]);
+
+  const token = localStorage.getItem('token');
+  const navigate = useNavigate;
+
+if (!token) navigate("/");
+
 
 ImageForm.propTypes = {
   onSubmit: PropTypes.func.isRequired
@@ -35,6 +43,7 @@ ImageForm.propTypes = {
   };
 
   return (
+    <>
     <div id='container'>
     <div className="drop-zone" style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center' }}>
       <form onSubmit={handleFormSubmit}>
@@ -53,6 +62,7 @@ ImageForm.propTypes = {
       </form>
     </div>
     </div>
+    </>
   );
 };
 
@@ -63,6 +73,7 @@ export const ImageBank = () => {
     caption: '',
     images: [],
   })));
+  const username = localStorage.getItem('username');
 
   const handleFormSubmit = (formData, index) => {
     // Handle form submission logic here with formData (liveSiteLink, githubLink, caption, and images)
@@ -81,9 +92,11 @@ export const ImageBank = () => {
 
   return (
     <>
+    <nav>Welcome, {username.toUpperCase()}</nav>
       {formsData.map((formData, index) => (
         <ImageForm key={index} index={index} onSubmit={(data) => handleFormSubmit(data, index)} />
       ))}
+      <LogoutButton />
     </>
   );
 };

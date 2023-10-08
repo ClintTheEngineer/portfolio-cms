@@ -1,9 +1,11 @@
 # portfolio-cms
 
 Core Features still missing:
-Update editor table to include user info, so multiple users can have different uploads.
-Update API endpoints so images and text data can be retrieved remotely.
-Add a visual dashboard that shows current portfolio set up (if any) for whichever user is logged in.
+<ul>
+<li>Update editor table to include user info, so multiple users can have different uploads.</li>
+<li>Update API endpoints so images and text data can be retrieved remotely.</li>
+<li>Add a visual dashboard that shows current portfolio set up (if any) for whichever user is logged in.</li>
+</ul>
 
 Also:
 Update UI and ensure site is fully responsive.

@@ -11,6 +11,7 @@ export const ImageForm = ({ onSubmit, index }) => {
   const token = localStorage.getItem('token');
   const username = localStorage.getItem('username');
   const navigate = useNavigate;
+  const id = index + 1;
 
 if (!token) navigate("/");
 
@@ -19,7 +20,7 @@ ImageForm.propTypes = {
   index: PropTypes.number.isRequired
 }
 
-const handleImageUpload = (e, formIndex) => {
+const handleImageUpload = (e) => {
   const files = e.target.files;
   const uploadedImages = [];
 
@@ -27,7 +28,7 @@ const handleImageUpload = (e, formIndex) => {
     const reader = new FileReader();
 
     reader.onload = (e) => {
-      const uniqueFileName = `form_${formIndex}_image_${i}.png`;
+      const uniqueFileName = `form_${id}_image_${username}.png`;
       uploadedImages.push({ dataURL: e.target.result, fileName: uniqueFileName });
 
       if (uploadedImages.length === files.length) {
@@ -79,7 +80,7 @@ function dataURItoBlob(dataURI) {
     e.preventDefault();
 
     const formData = new FormData();
-    const id = index + 1;
+    //const id = index + 1;
     formData.append('id', id)
     formData.append('siteLink', liveSiteLink);
     formData.append('githubLink', githubLink);

@@ -133,12 +133,11 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
 
 app.post('/project-add', upload.array('image'), async (req, res) => {
   try {
-    const { siteLink, githubLink, caption } = req.body;
+    const { id, siteLink, githubLink, caption, username } = req.body;
     const images = req.files.map(file => file.path);
-    console.log(images)
     await pool.query(
-    'INSERT INTO Portfolio_Editor (live_site_link, github_link, caption) VALUES ($1, $2, $3)',
-    [siteLink, githubLink, caption]);
+    'INSERT INTO Portfolio_Editor (id, live_site_link, github_link, caption, username) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (id, username) DO UPDATE SET live_site_link = EXCLUDED.live_site_link, github_link = EXCLUDED.github_link, caption = EXCLUDED.caption',
+    [id, siteLink, githubLink, caption, username]);
     res.status(201).json({ message: 'Project added successfully'})
   } catch (error) {
     console.error(error);

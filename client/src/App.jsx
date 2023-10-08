@@ -4,11 +4,11 @@ import './App.css'
 import { Home } from './components/Home';
 import { Login } from './components/Login';
 import { Register } from './components/Register';
-import { ImageBank } from './components/PortfolioEditor';
+import { ImageBank } from './components/ImageBank';
 
 function App() {
    const [token, setToken] = useState('');
-  
+   
   return (
     <>
     <Router>

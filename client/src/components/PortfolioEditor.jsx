@@ -1,22 +1,22 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
-import { LogoutButton } from './LogoutButton';
 import { useNavigate } from "react-router";
 
-export const ImageForm = ({ onSubmit }) => {
+export const ImageForm = ({ onSubmit, index }) => {
   const [liveSiteLink, setLiveSiteLink] = useState('');
   const [githubLink, setGithubLink] = useState('');
   const [caption, setCaption] = useState('');
   const [images, setImages] = useState([]);
 
   const token = localStorage.getItem('token');
+  const username = localStorage.getItem('username');
   const navigate = useNavigate;
 
 if (!token) navigate("/");
 
-
 ImageForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired
+  onSubmit: PropTypes.func.isRequired,
+  index: PropTypes.number.isRequired
 }
 
 const handleImageUpload = (e, formIndex) => {
@@ -79,9 +79,12 @@ function dataURItoBlob(dataURI) {
     e.preventDefault();
 
     const formData = new FormData();
+    const id = index + 1;
+    formData.append('id', id)
     formData.append('siteLink', liveSiteLink);
     formData.append('githubLink', githubLink);
     formData.append('caption', caption);
+    formData.append('username', username)
     formData.append('image', images );
     
     try {
@@ -107,6 +110,7 @@ function dataURItoBlob(dataURI) {
     <div id='container'>
     <div className="drop-zone" style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center' }}>
       <form onSubmit={handleFormSubmit}>
+        <p>Project ID: {index+1}</p>
         <p>Live site link: <input type='text' onChange={(e) => setLiveSiteLink(e.target.value)} /></p>
         <p>GitHub link: <input type='text' onChange={(e) => setGithubLink(e.target.value)} /></p>
         <p>Caption: <input type='text' onChange={(e) => setCaption(e.target.value)} /></p>
@@ -126,42 +130,6 @@ function dataURItoBlob(dataURI) {
   );
 };
 
-export const ImageBank = () => {
-  const [formsData, setFormsData] = useState([...Array(6)].map(() => ({
-    liveSiteLink: '',
-    githubLink: '',
-    caption: '',
-    images: [],
-  })));
-  const username = localStorage.getItem('username');
-
-  const handleFormSubmit = (formData, index) => {
-    // Handle form submission logic here with formData (liveSiteLink, githubLink, caption, and images)
-    console.log(`Form ${index + 1} submitted:`, formData);
-
-    // Optionally, reset the form fields and image state after submission
-    const updatedFormsData = [...formsData];
-    updatedFormsData[index] = {
-      liveSiteLink: '',
-      githubLink: '',
-      caption: '',
-      images: [],
-    };
-    setFormsData(updatedFormsData);
-  };
-
-
-
-  return (
-    <>
-    <nav>Welcome, {username.toUpperCase()}</nav>
-      {formsData.map((formData, index) => (
-        <ImageForm key={index} index={index} onSubmit={(data) => handleFormSubmit(data, index)} />
-      ))}
-      <LogoutButton />
-    </>
-  );
-};
 
 
 

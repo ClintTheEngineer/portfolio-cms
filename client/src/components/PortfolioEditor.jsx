@@ -19,49 +19,83 @@ ImageForm.propTypes = {
   onSubmit: PropTypes.func.isRequired
 }
 
-  const handleImageUpload = (e) => {
-    const files = e.target.files;
-    const uploadedImages = [];
+const handleImageUpload = (e, formIndex) => {
+  const files = e.target.files;
+  const uploadedImages = [];
 
-    for (let i = 0; i < files.length; i++) {
-      const reader = new FileReader();
+  for (let i = 0; i < files.length; i++) {
+    const reader = new FileReader();
 
-      reader.onload = (event) => {
-        uploadedImages.push(event.target.result);
-        if (uploadedImages.length === files.length) {
-          setImages([...images, ...uploadedImages]);
+    reader.onload = (e) => {
+      const uniqueFileName = `form_${formIndex}_image_${i}.png`;
+      uploadedImages.push({ dataURL: e.target.result, fileName: uniqueFileName });
+
+      if (uploadedImages.length === files.length) {
+        const formData = new FormData();
+        formData.append('siteLink', liveSiteLink);
+        formData.append('githubLink', githubLink);
+        formData.append('caption', caption);
+
+        for (let j = 0; j < uploadedImages.length; j++) {
+          const { dataURL, fileName } = uploadedImages[j];
+          formData.append('image', dataURItoBlob(dataURL), fileName);
         }
-      };
 
-      reader.readAsDataURL(files[i]);
-    }
-  };
+        // Now formData contains all necessary data including images
+        // Make your API call with this formData
+        try {
+          fetch('http://localhost:5000/project-add', {
+            method: 'POST',
+            body: formData,
+          });
+
+          // Handle the response as needed
+        } catch (error) {
+          console.error('There has been a problem with your fetch operation:', error);
+          // Handle error state, complete this later??
+        }
+      }
+    };
+
+    reader.readAsDataURL(files[i]);
+  }
+};
+
+
+// Helper function to convert data URI to Blob
+function dataURItoBlob(dataURI) {
+  const byteString = atob(dataURI.split(',')[1]);
+  const ab = new ArrayBuffer(byteString.length);
+  const ia = new Uint8Array(ab);
+  for (let i = 0; i < byteString.length; i++) {
+    ia[i] = byteString.charCodeAt(i);
+  }
+  return new Blob([ab], { type: 'image/png' });
+}
+
+  
 
   const handleFormSubmit = async (e) => {
     e.preventDefault();
-    const requestBody = {
-      siteLink: liveSiteLink,
-      githubLink: githubLink,
-      caption: caption,
-      image_data: images
-    };
 
+    const formData = new FormData();
+    formData.append('siteLink', liveSiteLink);
+    formData.append('githubLink', githubLink);
+    formData.append('caption', caption);
+    formData.append('image', images );
+    
     try {
       const response = await fetch('http://localhost:5000/project-add', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody)
+        body: formData,
       });
   
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
   
-      //const data = await response.json();
-  
-      onSubmit({ liveSiteLink, githubLink, caption, images });
+      const data = await response.json();
+      onSubmit(data);
     } catch (error) {
       console.error('There has been a problem with your fetch operation:', error);
       // Handle error state, complete this later
@@ -115,6 +149,8 @@ export const ImageBank = () => {
     };
     setFormsData(updatedFormsData);
   };
+
+
 
   return (
     <>

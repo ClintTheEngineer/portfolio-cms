@@ -10,6 +10,18 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const secretKey = crypto.randomBytes(32).toString('hex');
 
+
+const multer = require('multer');
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads/'); // Define the destination directory for uploaded files
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.originalname); // Use the original file name for storing the uploaded file
+  },
+});
+const upload = multer({ storage: storage });
+
 const nodemailer = require('nodemailer');
 
 app.use(cors());
@@ -25,6 +37,16 @@ app.get('/users', async (req, res) => {
         console.error(error.message);
         res.status(500).send('Server error')
     }
+})
+
+app.get('/get-projects', async (req, res) => {
+  try {
+         const projects = await pool.query('SELECT * FROM Portfolio_Editor');
+         res.json(projects.rows)
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error')
+  }
 })
 
 app.post('/login', async (req, res) => {
@@ -109,18 +131,26 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
   });
 
 
-app.post('/project-add', async (req, res) => {
+app.post('/project-add', upload.array('image'), async (req, res) => {
   try {
-    const { siteLink, githubLink, caption, image_data } = req.body;
+    const { siteLink, githubLink, caption } = req.body;
+    const images = req.files.map(file => file.path);
+    console.log(images)
     await pool.query(
-    'INSERT INTO Portfolio_Editor (live_site_link, github_link, caption, image_data) VALUES ($1, $2, $3, $4)',
-    [siteLink, githubLink, caption, image_data]);
+    'INSERT INTO Portfolio_Editor (live_site_link, github_link, caption) VALUES ($1, $2, $3)',
+    [siteLink, githubLink, caption]);
     res.status(201).json({ message: 'Project added successfully'})
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 })
+
+//app.use('/uploads', express.static('uploads'));
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Content-Type', 'image/jpeg'); // Set the appropriate content type based on the file type
+  next();
+}, express.static('uploads'));
 
 
 

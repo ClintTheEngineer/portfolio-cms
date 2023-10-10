@@ -5,7 +5,8 @@ import { useNavigate } from "react-router-dom";
 
 
 export const ImageBank = () => {
-    const [formsData, setFormsData] = useState([...Array(6)].map(() => ({
+  const projectBlocks = 1;
+    const [formsData, setFormsData] = useState([...Array(projectBlocks)].map(() => ({
       liveSiteLink: '',
       githubLink: '',
       caption: '',

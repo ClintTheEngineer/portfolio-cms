@@ -2,17 +2,18 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from "react-router";
 
-export const ImageForm = ({ onSubmit, index }) => {
+export const ImageForm = ({ onSubmit }) => {
   const [liveSiteLink, setLiveSiteLink] = useState('');
   const [githubLink, setGithubLink] = useState('');
   const [caption, setCaption] = useState('');
   const [images] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
+  const [selectedId, setSelectedId] = useState(1);
 
   const token = localStorage.getItem('token');
   const username = localStorage.getItem('username');
   const navigate = useNavigate;
-  const id = index + 1;
+  const optionsTotal = 6;
 
 if (!token) navigate("/");
 
@@ -58,7 +59,7 @@ function dataURItoBlob(dataURI) {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('id', id)
+    formData.append('id', selectedId)
     formData.append('siteLink', liveSiteLink);
     formData.append('githubLink', githubLink);
     formData.append('caption', caption);
@@ -67,7 +68,7 @@ function dataURItoBlob(dataURI) {
     // Append uploaded images to the form data
     for (let i = 0; i < uploadedImages.length; i++) {
       const dataURL = uploadedImages[i];
-      formData.append('image', dataURItoBlob(dataURL), `${username}_image_${id}.png`);
+      formData.append('image', dataURItoBlob(dataURL), `${username}_image_${selectedId}.png`);
     }
     
     try {
@@ -92,7 +93,16 @@ function dataURItoBlob(dataURI) {
     <div id='container'>
     <div className="drop-zone" style={{ border: '2px dashed #ccc', padding: '20px', textAlign: 'center' }}>
       <form onSubmit={handleFormSubmit}>
-        <p>Project ID: {index+1}</p>
+      <p>
+              Project ID:{" "}
+              <select value={selectedId} onChange={(e) => setSelectedId(parseInt(e.target.value))}>
+                {[...Array(optionsTotal).keys()].map((num) => (
+                  <option key={num + 1} value={num + 1}>
+                    {num + 1}
+                  </option>
+                ))}
+              </select>
+            </p>
         <p>Live site link: <input type='text' onChange={(e) => setLiveSiteLink(e.target.value)} /></p>
         <p>GitHub link: <input type='text' onChange={(e) => setGithubLink(e.target.value)} /></p>
         <p>Caption: <input type='text' onChange={(e) => setCaption(e.target.value)} /></p>

@@ -12,7 +12,7 @@ export const ImageForm = ({ onSubmit }) => {
 
   const token = localStorage.getItem('token');
   const username = localStorage.getItem('username');
-  const navigate = useNavigate;
+  const navigate = useNavigate();
   const optionsTotal = 6;
 
 if (!token) navigate("/");

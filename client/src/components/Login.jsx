@@ -8,7 +8,7 @@ export const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [token, setToken] = useState('')
+  const [token, setToken] = useState('');
   const navigate = useNavigate();
 
   Login.propTypes = {
@@ -18,20 +18,22 @@ export const Login = () => {
   useEffect(() => {
     const token = localStorage.getItem('token')
    if(token){
-    navigate('/editor')
+    navigate(`/editor`)
    }
    }, [navigate])
 
    const HandleLogin = async () => {
     try {
+      const authHeader = `Bearer ${token}`;
       const response = await fetch('http://localhost:5000/login', {
         method: 'POST',
         headers: {
+          'Authorization': authHeader,  
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ username, password })
       });
-console.log(response);
+
       const data = await response.json();
       if (response.status === 200) {
         const token = data.token;
@@ -40,7 +42,7 @@ console.log(response);
         setUsername(username);
         localStorage.setItem('token', token);
         localStorage.setItem('username', username);
-        navigate('/editor');
+        navigate(`/editor`);
       } else if(response.status === 400){
         setErrorMessage('Login failed')
         console.error('Login failed:', response.status)

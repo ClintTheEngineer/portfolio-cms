@@ -14,14 +14,19 @@ const secretKey = crypto.randomBytes(32).toString('hex');
 const multer = require('multer');
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './uploads/'); // Define the destination directory for uploaded files
+    const username = req.body.username; 
+    const userUploadsDir = `./uploads/${username}`; // Create a sub-directory based on the username
+    fs.mkdirSync(userUploadsDir, { recursive: true }); // Create the sub-directory if it doesn't exist
+    cb(null, userUploadsDir);
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname); // Use the original file name for storing the uploaded file
+    cb(null, file.originalname);
   },
 });
-const upload = multer({ storage: storage });
 
+const upload = multer({ storage: storage });
+const path = require('path');
+const fs = require('fs');
 const nodemailer = require('nodemailer');
 
 app.use(cors());
@@ -90,7 +95,6 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
       });
     }
       
-      // Check if the username already exists in the database
     const existingUser = await pool.query(
       'SELECT * FROM Users WHERE username = $1',
       [username]
@@ -145,11 +149,26 @@ app.post('/project-add', upload.array('image'), async (req, res) => {
   }
 })
 
-//app.use('/uploads', express.static('uploads'));
-app.use('/uploads', (req, res, next) => {
-  res.setHeader('Content-Type', 'image/jpeg'); // Set the appropriate content type based on the file type
-  next();
-}, express.static('uploads'));
+
+app.get('/uploads/:username', (req, res) => {
+  const username = req.params.username;
+  const uploadsDirectory = path.join(__dirname, 'uploads', username);
+
+  // Read filenames from the uploads directory
+  fs.readdir(uploadsDirectory, (err, files) => {
+    if (err) {
+      console.error('Error reading directory:', err);
+      return res.status(500).send('Internal Server Error');
+    }
+
+    // Construct URLs based on filenames and send as response
+    const imageUrls = files.map(filename => `/uploads/${username}/${filename}`);
+    res.json(imageUrls);
+  });
+});
+
+
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 
 

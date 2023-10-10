@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ImageForm } from "./PortfolioEditor";
 import { LogoutButton } from "./LogoutButton";
+import { useNavigate } from "react-router-dom";
+
 
 export const ImageBank = () => {
     const [formsData, setFormsData] = useState([...Array(6)].map(() => ({
@@ -10,6 +12,14 @@ export const ImageBank = () => {
       images: [],
     })));
     const username = localStorage.getItem('username');
+    const navigate = useNavigate();
+
+    useEffect(() => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/');
+      }
+    }, [navigate]);
   
     const handleFormSubmit = (formData, index) => {
       // Handle form submission logic here with formData (liveSiteLink, githubLink, caption, and images)

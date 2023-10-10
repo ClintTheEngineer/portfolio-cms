@@ -6,7 +6,8 @@ export const ImageForm = ({ onSubmit, index }) => {
   const [liveSiteLink, setLiveSiteLink] = useState('');
   const [githubLink, setGithubLink] = useState('');
   const [caption, setCaption] = useState('');
-  const [images, setImages] = useState([]);
+  const [images] = useState([]);
+  const [uploadedImages, setUploadedImages] = useState([]);
 
   const token = localStorage.getItem('token');
   const username = localStorage.getItem('username');
@@ -28,33 +29,10 @@ const handleImageUpload = (e) => {
     const reader = new FileReader();
 
     reader.onload = (e) => {
-      const uniqueFileName = `form_${id}_image_${username}.png`;
-      uploadedImages.push({ dataURL: e.target.result, fileName: uniqueFileName });
+      uploadedImages.push(e.target.result);
 
       if (uploadedImages.length === files.length) {
-        const formData = new FormData();
-        formData.append('siteLink', liveSiteLink);
-        formData.append('githubLink', githubLink);
-        formData.append('caption', caption);
-
-        for (let j = 0; j < uploadedImages.length; j++) {
-          const { dataURL, fileName } = uploadedImages[j];
-          formData.append('image', dataURItoBlob(dataURL), fileName);
-        }
-
-        // Now formData contains all necessary data including images
-        // Make your API call with this formData
-        try {
-          fetch('http://localhost:5000/project-add', {
-            method: 'POST',
-            body: formData,
-          });
-
-          // Handle the response as needed
-        } catch (error) {
-          console.error('There has been a problem with your fetch operation:', error);
-          // Handle error state, complete this later??
-        }
+        setUploadedImages(uploadedImages);
       }
     };
 
@@ -80,13 +58,17 @@ function dataURItoBlob(dataURI) {
     e.preventDefault();
 
     const formData = new FormData();
-    //const id = index + 1;
     formData.append('id', id)
     formData.append('siteLink', liveSiteLink);
     formData.append('githubLink', githubLink);
     formData.append('caption', caption);
-    formData.append('username', username)
-    formData.append('image', images );
+    formData.append('username', username);
+
+    // Append uploaded images to the form data
+    for (let i = 0; i < uploadedImages.length; i++) {
+      const dataURL = uploadedImages[i];
+      formData.append('image', dataURItoBlob(dataURL), `${username}_image_${id}.png`);
+    }
     
     try {
       const response = await fetch('http://localhost:5000/project-add', {
@@ -102,7 +84,6 @@ function dataURItoBlob(dataURI) {
       onSubmit(data);
     } catch (error) {
       console.error('There has been a problem with your fetch operation:', error);
-      // Handle error state, complete this later
     }
   };
 
@@ -130,7 +111,3 @@ function dataURItoBlob(dataURI) {
     </>
   );
 };
-
-
-
-

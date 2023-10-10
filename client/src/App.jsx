@@ -5,10 +5,11 @@ import { Home } from './components/Home';
 import { Login } from './components/Login';
 import { Register } from './components/Register';
 import { ImageBank } from './components/ImageBank';
+import { Uploads } from './components/Uploads';
 
 function App() {
-   const [token, setToken] = useState('');
-   
+   const [setToken] = useState('');
+   const username = localStorage.getItem('username');
   return (
     <>
     <Router>
@@ -17,6 +18,7 @@ function App() {
     <Route path='/login' element={<Login setToken={setToken} />} />
     <Route path='/register' element={<Register />} />
     <Route path='/editor' element={<ImageBank />} />
+    <Route path='/uploads/:username' element={<Uploads setToken={setToken} username={username} />} />
     </Routes>
     </Router>
     </>

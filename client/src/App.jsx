@@ -6,9 +6,10 @@ import { Login } from './components/Login';
 import { Register } from './components/Register';
 import { ImageBank } from './components/ImageBank';
 import { Uploads } from './components/Uploads';
+import PrivateRoutes from './components/PrivateRoutes';
 
 function App() {
-   const [setToken] = useState('');
+   const setToken = useState('');
    const username = localStorage.getItem('username');
   return (
     <>
@@ -16,9 +17,11 @@ function App() {
     <Routes>
     <Route path='/' element={<Home />} />
     <Route path='/login' element={<Login setToken={setToken} />} />
-    <Route path='/register' element={<Register />} />
+    <Route path='/register' element={<Register />} />      
+    <Route element={<PrivateRoutes />}>
+    <Route path='/uploads/:username' element={<Uploads setToken={setToken} username={username} />} />  
     <Route path='/editor' element={<ImageBank />} />
-    <Route path='/uploads/:username' element={<Uploads setToken={setToken} username={username} />} />
+    </Route>
     </Routes>
     </Router>
     </>

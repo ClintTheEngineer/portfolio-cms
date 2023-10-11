@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from "react-router";
 
@@ -10,12 +10,17 @@ export const PortfolioEditor = ({ onSubmit }) => {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [selectedId, setSelectedId] = useState(1);
 
-  const token = localStorage.getItem('token');
+  //const token = localStorage.getItem('token');
   const username = localStorage.getItem('username');
   const navigate = useNavigate();
   const optionsTotal = 6;
 
-if (!token) navigate("/");
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/');
+    }
+  }, [navigate]);
 
 PortfolioEditor.propTypes = {
   onSubmit: PropTypes.func.isRequired,

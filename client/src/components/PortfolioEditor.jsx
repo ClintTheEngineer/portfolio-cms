@@ -2,7 +2,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate } from "react-router";
 
-export const ImageForm = ({ onSubmit }) => {
+export const PortfolioEditor = ({ onSubmit }) => {
   const [liveSiteLink, setLiveSiteLink] = useState('');
   const [githubLink, setGithubLink] = useState('');
   const [caption, setCaption] = useState('');
@@ -17,7 +17,7 @@ export const ImageForm = ({ onSubmit }) => {
 
 if (!token) navigate("/");
 
-ImageForm.propTypes = {
+PortfolioEditor.propTypes = {
   onSubmit: PropTypes.func.isRequired,
   index: PropTypes.number.isRequired
 }

@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { ImageForm } from "./PortfolioEditor";
+import { PortfolioEditor } from "./PortfolioEditor";
 import { LogoutButton } from "./LogoutButton";
 import { useNavigate } from "react-router-dom";
+import { Uploads } from "./Uploads";
 
 
 export const ImageBank = () => {
@@ -41,11 +42,14 @@ export const ImageBank = () => {
   
     return (
       <>
-        <nav>Welcome, {username.toUpperCase()}</nav>
-        {formsData.map((formData, index) => (
-          <ImageForm key={index} index={index} onSubmit={(data) => handleFormSubmit(data, index)} />
-        ))}
+        <nav>Welcome, {username.toUpperCase()}
         <LogoutButton />
+        </nav>
+        {formsData.map((formData, index) => (
+          <PortfolioEditor key={index} index={index} onSubmit={(data) => handleFormSubmit(data, index)} />
+        ))}
+        <aside>{<Uploads />}</aside>
+        
       </>
     );
   };

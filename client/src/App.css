@@ -3,13 +3,27 @@
   margin: 5%;
 }
 
+.image-container {
+  margin-top: 12%;
+  position: relative;
+}
+
+.images {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Three columns with equal width */
+  grid-gap: 20px; /* Gap between grid items */
+}
+
+section {
+  top: 6%;
+}
 
 #container {
   display: inline-block;
   justify-content: center;
-  align-items: center;
   flex-direction: row;
   margin-bottom: 20px;
+  margin-top: 2%;
   width: 33%;
 }
 
@@ -20,7 +34,21 @@
   float: right;
 }
 
+#logout-btn {
+  margin-right: 2%;
+  float: right;
+}
+
 h1{
   text-align: center;
 }
 
+aside {
+  float: right;
+}
+
+aside img{
+  display: block;
+  width: 300px;
+  margin-bottom: 1.5%;
+}

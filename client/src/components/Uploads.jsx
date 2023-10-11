@@ -23,13 +23,15 @@ export const Uploads = () => {
   }, [username]); // Empty dependency array ensures useEffect runs only once
 
   return (
+    <section>
     <div className="image-container">
       <h2>Your Uploaded Images</h2>
       <div className="images">
         {images.map((imageUrl, index) => (
-          <img key={index} src={`http://localhost:5000${imageUrl}`} alt={`uploaded-${index}`} />
+          <img key={index} src={`http://localhost:5000${imageUrl}`} alt={`uploaded-${index}`} title={`Project ${index+1}`} />
         ))}
       </div>
     </div>
+    </section>
   );
 };

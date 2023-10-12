@@ -6,7 +6,7 @@ export const PortfolioEditor = ({ onSubmit }) => {
   const [liveSiteLink, setLiveSiteLink] = useState('');
   const [githubLink, setGithubLink] = useState('');
   const [caption, setCaption] = useState('');
-  const [images] = useState([]);
+  const [images, setImages] = useState([]);
   const [uploadedImages, setUploadedImages] = useState([]);
   const [selectedId, setSelectedId] = useState(1);
 
@@ -24,7 +24,7 @@ export const PortfolioEditor = ({ onSubmit }) => {
 
 PortfolioEditor.propTypes = {
   onSubmit: PropTypes.func.isRequired,
-  index: PropTypes.number.isRequired
+  //index: PropTypes.number.isRequired
 }
 
 const handleImageUpload = (e) => {
@@ -93,6 +93,15 @@ function dataURItoBlob(dataURI) {
     }
   };
 
+  const handleReset = () => {
+    setLiveSiteLink('');
+    setGithubLink('');
+    setCaption('');
+    setImages([]);
+    setUploadedImages([]);
+    setSelectedId(1);
+  };
+
   return (
     <>
     <div id='container'>
@@ -118,8 +127,9 @@ function dataURItoBlob(dataURI) {
         {images.map((image, imgIndex) => (
           <img key={imgIndex} src={image} alt={`uploaded-${imgIndex}`} style={{ maxWidth: '100px', margin: '10px' }} />
         ))}
-
+        <button type='reset' onClick={handleReset}>Reset</button>
         <button type='submit'>Submit</button>
+        
       </form>
     </div>
     </div>

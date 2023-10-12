@@ -44,6 +44,8 @@ app.get('/users', async (req, res) => {
     }
 })
 
+
+
 app.get('/get-projects', async (req, res) => {
   try {
          const projects = await pool.query('SELECT * FROM Portfolio_Editor');
@@ -53,6 +55,18 @@ app.get('/get-projects', async (req, res) => {
     res.status(500).send('Server error')
   }
 })
+
+app.get('/:username/projects', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const projects = await pool.query('SELECT * FROM Portfolio_Editor WHERE username = $1 ORDER BY id ASC', [username]);
+    res.json(projects.rows);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+});
+
 
 app.post('/login', async (req, res) => {
     try {
@@ -162,10 +176,11 @@ app.get('/uploads/:username', (req, res) => {
     }
 
     // Construct URLs based on filenames and send as response
-    const imageUrls = files.map(filename => `/uploads/${username}/${filename}`);
+    const imageUrls = files.map(filename => `/uploads/${username}/${filename}`).sort();
     res.json(imageUrls);
   });
 });
+
 
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

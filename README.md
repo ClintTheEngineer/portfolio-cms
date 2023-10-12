@@ -4,9 +4,10 @@ Core Features still missing:
 <ul>
 <li>Profile page</li>
 <li>Account Page</li>
-<li>Update editor table to include user info, so multiple users can have different uploads.</li>
-<li>Update API endpoints so images and text data can be retrieved remotely.</li>
+<li>Add ability to delete accounts</li>
 <li>Add a visual dashboard that shows current portfolio set up (if any) for whichever user is logged in.</li>
+<li>Consolidate form submissions</li>
+<li>Add page to view live preview of portfolio</li>
 </ul>
 Optional Features:
 <ul>

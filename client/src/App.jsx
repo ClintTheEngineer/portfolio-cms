@@ -7,6 +7,7 @@ import { Register } from './components/Register';
 import { ImageBank } from './components/ImageBank';
 import { Uploads } from './components/Uploads';
 import PrivateRoutes from './components/PrivateRoutes';
+import { PortfolioEditor } from './components/PortfolioEditor';
 
 function App() {
    const setToken = useState('');
@@ -21,6 +22,7 @@ function App() {
     <Route element={<PrivateRoutes />}>
     <Route path='/uploads/:username' element={<Uploads setToken={setToken} username={username} />} />  
     <Route path='/editor' element={<ImageBank />} />
+    <Route path='/portfolio-editor' element={<PortfolioEditor />} />
     </Route>
     </Routes>
     </Router>

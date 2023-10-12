@@ -6,6 +6,7 @@ Core Features still missing:
 <li>Account Page</li>
 <li>Add ability to delete accounts</li>
 <li>Add a visual dashboard that shows current portfolio set up (if any) for whichever user is logged in.</li>
+<li>Add separate submission buttons for each field</li>
 <li>Consolidate form submissions</li>
 <li>Add page to view live preview of portfolio</li>
 </ul>

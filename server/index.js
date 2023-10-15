@@ -24,6 +24,29 @@ const storage = multer.diskStorage({
   },
 });
 
+//check  
+
+const singleImageUpload = multer({ 
+  storage: multer.diskStorage({
+    destination: function (req, file, cb) {
+      const username = req.params.username;
+      const techImagesDir = `./uploads/${username}/tech-images`; 
+      // Create the 'tech-images' sub-directory if it doesn't exist
+      fs.mkdirSync(techImagesDir, { recursive: true });
+      cb(null, techImagesDir);
+    },
+    filename: function (req, file, cb) {
+      cb(null, file.originalname);
+    },
+  })
+});
+
+
+//check
+
+
+
+
 const upload = multer({ storage: storage });
 const path = require('path');
 const fs = require('fs');
@@ -162,6 +185,23 @@ app.post('/project-add', upload.array('image'), async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 })
+
+//stream
+app.post('/tech-images/:username', singleImageUpload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+    const username = req.params.username;
+    const imageUrl = `/uploads/${username}/tech-images/${req.file.filename}`;
+    res.status(201).json({ message: 'Image uploaded successfully', imageUrl });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+//stream
+
 
 
 app.get('/uploads/:username', (req, res) => {

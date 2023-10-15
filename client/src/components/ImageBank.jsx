@@ -1,16 +1,16 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { PortfolioEditor } from "./PortfolioEditor";
 import { LogoutButton } from "./LogoutButton";
 import { useNavigate } from "react-router-dom";
 import { Uploads } from "./Uploads";
 
 export const ImageBank = () => {
-  const [setFormData] = useState({
+  /*const [setFormData] = useState({
     liveSiteLink: '',
     githubLink: '',
     caption: '',
     images: [],
-  });
+  });*/
 
   const username = localStorage.getItem('username');
   const navigate = useNavigate();
@@ -26,12 +26,13 @@ export const ImageBank = () => {
     // Handle form submission logic here with formData (liveSiteLink, githubLink, caption, and images)
     console.log("Form submitted:", formData);
     // Optionally, reset the form fields and image state after submission
+    /*
     setFormData({
       liveSiteLink: '',
       githubLink: '',
       caption: '',
       images: [],
-    });
+    });*/
   };
 
   return (

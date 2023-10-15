@@ -28,7 +28,7 @@ export const Uploads = () => {
       <h2>Your Uploaded Images</h2>
       <div className="images">
         {images.map((imageUrl, index) => (
-          <img key={index} src={`http://localhost:5000${imageUrl}`} alt={`uploaded-${index}`} title={`Project ${index+1}`} />
+          <img key={index} src={`http://localhost:5000${imageUrl}`} style={{ maxWidth: '400px', margin: '10px' }} alt={`uploaded-${index}`} title={`Project ${index+1}`} />
         ))}
       </div>
     </div>

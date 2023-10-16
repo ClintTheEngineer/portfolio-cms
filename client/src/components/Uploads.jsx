@@ -10,7 +10,8 @@ export const Uploads = () => {
         const response = await fetch(`http://localhost:5000/uploads/${username}`);
         if (response.ok) {
           const data = await response.json();
-          setImages(data);
+          // Exclude the last image from the fetched data
+          setImages(data.slice(0, -1));
         } else {
           console.error('Failed to fetch images');
         }
@@ -19,19 +20,19 @@ export const Uploads = () => {
       }
     };
 
-    fetchImages(); // Call the fetchImages function
-  }, [username]); // Empty dependency array ensures useEffect runs only once
+    fetchImages();
+  }, [username]);
 
   return (
     <section>
-    <div className="image-container">
-      <h2>Your Uploaded Images</h2>
-      <div className="images">
-        {images.map((imageUrl, index) => (
-          <img key={index} src={`http://localhost:5000${imageUrl}`} style={{ maxWidth: '400px', margin: '10px' }} alt={`uploaded-${index}`} title={`Project ${index+1}`} />
-        ))}
+      <div className="image-container">
+        <h2>Your Uploaded Images</h2>
+        <div className="images">
+          {images.map((imageUrl, index) => (
+            <img key={index} src={`http://localhost:5000${imageUrl}`} style={{ maxWidth: '400px', margin: '10px' }} alt={`uploaded-${index}`} title={`Project ${index+1}`} />
+          ))}
+        </div>
       </div>
-    </div>
     </section>
   );
 };

@@ -47,9 +47,14 @@ aside {
   float: right;
 }
 
-aside img{
+aside img {
   display: block;
   height: 200px;
   width: 300px;
   margin-bottom: 1.5%;
 }
+
+#asset-tag {
+  margin-left: 70%;
+}
+

@@ -38,6 +38,7 @@ export const ImageBank = () => {
   return (
     <>
       <nav>Welcome, {username ? username.toUpperCase() : ''}
+      <span id="asset-tag"><a href="/tech-stack" alt="tech stack">Upload Additional Assets</a></span>
         <LogoutButton />
       </nav>
       <PortfolioEditor onSubmit={(data) => handleFormSubmit(data)} />

@@ -9,6 +9,7 @@ import { Uploads } from './components/Uploads';
 import PrivateRoutes from './components/PrivateRoutes';
 import { PortfolioEditor } from './components/PortfolioEditor';
 import { TechStack } from './components/TechStack';
+import { ForgotPassword } from './components/ForgotPassword';
 
 function App() {
    const setToken = useState('');
@@ -19,7 +20,8 @@ function App() {
     <Routes>
     <Route path='/' element={<Home />} />
     <Route path='/login' element={<Login setToken={setToken} />} />
-    <Route path='/register' element={<Register />} />      
+    <Route path='/register' element={<Register />} />  
+    <Route path='/forgot-password' element={<ForgotPassword />} />    
     <Route element={<PrivateRoutes />}>
     <Route path='/uploads/:username' element={<Uploads setToken={setToken} username={username} />} />  
     <Route path='/editor' element={<ImageBank />} />

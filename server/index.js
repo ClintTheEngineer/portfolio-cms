@@ -42,11 +42,6 @@ const singleImageUpload = multer({
 });
 
 
-//check
-
-
-
-
 const upload = multer({ storage: storage });
 const path = require('path');
 const fs = require('fs');
@@ -172,6 +167,77 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
   });
 
 
+  app.post('/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+  
+     const userWithEmailExists = await checkEmailExists(email);
+  
+      if (!userWithEmailExists) {
+        return res.status(400).json({ error: 'Email not found' });
+      }
+  
+      // Generate a unique token
+      const token = crypto.randomBytes(16).toString('hex');
+      // Set the expiration time for the token
+      const expirationTime = new Date(Date.now() + 3600000).toISOString(); // 1 hour in milliseconds
+  
+      // Store the token and its expiration timestamp in the database
+      await pool.query(
+        'INSERT INTO reset_tokens (token, email, expiration_time) VALUES ($1::uuid, $2, $3)',
+        [token, email, expirationTime]
+      );
+  
+      const transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+          user: process.env.EMAIL, 
+          pass: process.env.PASSWORD,
+        },
+      });
+  
+      
+      const mailOptions = {
+        from: 'Cander Portfolio Manager <no-reply@clinttheengineer.com>',
+        to: email, 
+        subject: 'Password Reset',
+        html: `
+          <p>You have requested to reset your password.</p>
+          <p>Click the following link to reset your password:</p>
+          <a href="http://localhost:5000/validate-password?token=${token}">Reset Password</a>
+        `,
+      };
+  
+     
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.error('Error sending email:', error);
+          res.status(500).send('Failed to send password reset email');
+        } else {
+          console.log('Password reset email sent:', info.response);
+          res.status(200).json({ message: 'Password reset email sent' });
+        }
+      });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send('Server error');
+    }
+  });
+
+
+  async function checkEmailExists(email) {
+    try {
+      const query = 'SELECT COUNT(*) FROM Users WHERE email = $1';
+      const result = await pool.query(query, [email]);
+      return result.rows[0].count > 0;
+    } catch (error) {
+      console.error('Error checking if email exists:', error);
+      throw error; 
+    }
+  }
+
+
+
 app.post('/project-add', upload.array('image'), async (req, res) => {
   try {
     const { id, siteLink, githubLink, caption, username } = req.body;
@@ -186,7 +252,35 @@ app.post('/project-add', upload.array('image'), async (req, res) => {
   }
 })
 
-//stream
+app.post('/reset-password/:token', async (req, res) => {
+  try {
+    const { token } = req.params;
+    const { newPassword } = req.body;
+
+    const query = 'SELECT email FROM reset_tokens WHERE token = $1 AND expiration_time > NOW()';
+    const result = await pool.query(query, [token]);
+
+    if (result.rows.length === 0) {
+      return res.status(400).json({ error: 'Invalid or expired token' });
+    }
+
+    const email = result.rows[0].email;
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const updateQuery = 'UPDATE Users SET password_hash = $1 WHERE email = $2';
+    await pool.query(updateQuery, [hashedPassword, email]);
+
+    // Delete the used token from the reset_tokens table
+    await pool.query('DELETE FROM reset_tokens WHERE token = $1', [token]);
+
+    res.status(200).json({ message: 'Password reset successful' });
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
 app.post('/tech-images/:username', singleImageUpload.single('image'), (req, res) => {
   try {
     if (!req.file) {
@@ -200,7 +294,6 @@ app.post('/tech-images/:username', singleImageUpload.single('image'), (req, res)
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
-//stream
 
 
 
@@ -220,6 +313,42 @@ app.get('/uploads/:username', (req, res) => {
     res.json(imageUrls);
   });
 });
+
+
+// Handle form submission and send email
+app.post('/send-email', (req, res) => {
+  const { email, message } = req.body;
+
+  // Create a Nodemailer transporter using your email service provider
+  const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+          user: process.env.EMAIL, 
+          pass: process.env.PASSWORD 
+      }
+  });
+
+  // Email content
+  const mailOptions = {
+      from: email,
+      to: process.env.EMAIL, // Recipient's email address (could be your email or any other email)
+      subject: 'Portfolio Communication',
+      text: `Email: ${email}\nMessage: ${message}`
+  };
+
+  // Send email
+  transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+          console.error(error);
+          res.send('Error: Something went wrong. Please try again later.');
+      } else {
+          console.log('Email sent: ' + info.response);
+          res.send('Email sent successfully!');
+      }
+  });
+});
+
+
 
 
 

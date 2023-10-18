@@ -192,7 +192,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
         service: 'Gmail',
         auth: {
           user: process.env.EMAIL, 
-          pass: process.env.PASSWORD,
+          pass: process.env.EMAIL_PASSWORD,
         },
       });
   
@@ -324,7 +324,7 @@ app.post('/send-email', (req, res) => {
       service: 'gmail',
       auth: {
           user: process.env.EMAIL, 
-          pass: process.env.PASSWORD 
+          pass: process.env.EMAIL_PASSWORD 
       }
   });
 

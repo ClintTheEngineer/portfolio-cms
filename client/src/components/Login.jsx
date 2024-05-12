@@ -25,7 +25,7 @@ export const Login = () => {
    const HandleLogin = async () => {
     try {
       const authHeader = `Bearer ${token}`;
-      const response = await fetch('http://localhost:5000/login', {
+      const response = await fetch('https://easy-fly-umbrella.cyclic.cloud/login', {
         method: 'POST',
         headers: {
           'Authorization': authHeader,  

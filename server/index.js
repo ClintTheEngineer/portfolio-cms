@@ -10,47 +10,20 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const secretKey = crypto.randomBytes(32).toString('hex');
 
-
 const multer = require('multer');
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    const username = req.body.username; 
-    const userUploadsDir = `./uploads/${username}`; // Create a sub-directory based on the username
-    fs.mkdirSync(userUploadsDir, { recursive: true }); // Create the sub-directory if it doesn't exist
-    cb(null, userUploadsDir);
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
 
-//check  
-
-const singleImageUpload = multer({ 
-  storage: multer.diskStorage({
-    destination: function (req, file, cb) {
-      const username = req.params.username;
-      const techImagesDir = `./uploads/${username}/tech-images`; 
-      // Create the 'tech-images' sub-directory if it doesn't exist
-      fs.mkdirSync(techImagesDir, { recursive: true });
-      cb(null, techImagesDir);
-    },
-    filename: function (req, file, cb) {
-      cb(null, file.originalname);
-    },
-  })
-});
-
-
-const upload = multer({ storage: storage });
 const path = require('path');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
+
+const CanderDB = require('./db2');
 
 app.use(cors());
 app.use(express.json());
 
 app.use(express.urlencoded({ extended: true }));
+
+
 
 app.get('/users', async (req, res) => {
     try {
@@ -74,6 +47,9 @@ app.get('/get-projects', async (req, res) => {
   }
 })
 
+
+
+
 app.get('/:username/projects', async (req, res) => {
   try {
     const username = req.params.username;
@@ -84,6 +60,131 @@ app.get('/:username/projects', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+
+app.get('/:username/projects/caption', async (req, res) => {
+  try {
+    const username = req.params.username;
+
+    // Construct request to CanderDB
+    const requestBody = {
+      method: 'GET',
+      path: `/instances/mmaaced@gmail.com/cms/portfolio_cms.db`,
+      headers: {
+        'Authorization': process.env.ACCESS_TOKEN
+      }
+    };
+
+    // Make request to CanderDB
+    CanderDB.connect(requestBody.method, requestBody, (error, data) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).send(error);
+      }
+
+      try {
+        // Parse the response from CanderDB
+        const jsonData = JSON.parse(data);
+
+        // Extract only the captions
+        const captions = jsonData.map(entry => ({ caption: entry.caption }));
+
+        // Send the modified response
+        res.json(captions);
+      } catch (parseError) {
+        console.error('Error parsing JSON:', parseError);
+        res.status(500).send(`Error parsing JSON from the remote server`);
+      }
+    });
+
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
+app.get('/:username/projects/caption/:id', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const id = parseInt(req.params.id); // Convert id to integer
+
+    // Construct request to CanderDB
+    const requestBody = {
+      method: 'GET',
+      path: `/instances/mmaaced@gmail.com/cms/portfolio_cms.db`,
+      headers: {
+        'Authorization': process.env.ACCESS_TOKEN
+      }
+    };
+
+    // Make request to CanderDB
+    CanderDB.connect(requestBody.method, requestBody, (error, data) => {
+      if (error) {
+        console.error(error);
+        return res.status(500).send(error);
+      }
+
+      try {
+        // Parse the response from CanderDB
+        const jsonData = JSON.parse(data);
+
+        // Check if id is within range
+        if (id < 1 || id > jsonData.length) {
+          return res.status(404).send('Project not found');
+        }
+
+        // Get the caption based on id (index + 1)
+        const project = jsonData[id - 1];
+        const caption = project.caption;
+
+        // Send the caption
+        res.json(caption);
+      } catch (parseError) {
+        console.error('Error parsing JSON:', parseError);
+        res.status(500).send(`Error parsing JSON from the remote server`);
+      }
+    });
+
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
+
+
+// Route to get all projects' captions for a specific username
+app.get('/:username/projects/caption', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const projects = await pool.query('SELECT caption FROM Portfolio_Editor WHERE username = $1', [username]);
+    const captions = projects.rows.map(project => project.caption);
+    res.json(captions);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// Route to get a specific project's caption by ID for a specific username
+app.get('/:username/projects/caption/:id', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const id = req.params.id;
+    const project = await pool.query('SELECT caption FROM Portfolio_Editor WHERE username = $1 AND id = $2', [username, id]);
+    if (project.rows.length === 0) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    res.json(project.rows[0].caption);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+});
+
 
 
 app.post('/login', async (req, res) => {
@@ -204,7 +305,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
         html: `
           <p>You have requested to reset your password.</p>
           <p>Click the following link to reset your password:</p>
-          <a href="http://localhost:5000/validate-password?token=${token}">Reset Password</a>
+          <a href="https://easy-fly-umbrella.cyclic.cloud/validate-password?token=${token}">Reset Password</a>
         `,
       };
   
@@ -238,20 +339,6 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
 
 
 
-app.post('/project-add', upload.array('image'), async (req, res) => {
-  try {
-    const { id, siteLink, githubLink, caption, username } = req.body;
-    const images = req.files.map(file => file.path);
-    await pool.query(
-    'INSERT INTO Portfolio_Editor (id, live_site_link, github_link, caption, username) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (id, username) DO UPDATE SET live_site_link = EXCLUDED.live_site_link, github_link = EXCLUDED.github_link, caption = EXCLUDED.caption',
-    [id, siteLink, githubLink, caption, username]);
-    res.status(201).json({ message: 'Project added successfully'})
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-})
-
 app.post('/reset-password/:token', async (req, res) => {
   try {
     const { token } = req.params;
@@ -279,22 +366,6 @@ app.post('/reset-password/:token', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
-
-
-app.post('/tech-images/:username', singleImageUpload.single('image'), (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded' });
-    }
-    const username = req.params.username;
-    const imageUrl = `/uploads/${username}/tech-images/${req.file.filename}`;
-    res.status(201).json({ message: 'Image uploaded successfully', imageUrl });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
 
 
 app.get('/uploads/:username', (req, res) => {
@@ -347,8 +418,6 @@ app.post('/send-email', (req, res) => {
       }
   });
 });
-
-
 
 
 

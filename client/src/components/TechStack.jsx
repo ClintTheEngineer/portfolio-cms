@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Constants } from './Constants';
 
 export const TechStack = () => {
   const [image, setImage] = useState(null);
@@ -13,9 +14,11 @@ const username = localStorage.getItem('username')
   const handleUpload = async () => {
     try {
       const formData = new FormData();
+      formData.append('id', 12)
       formData.append('image', image);
+      console.log(formData)
 
-      const response = await fetch(`http://localhost:5000/tech-images/${username}`, {
+      const response = await fetch(`${Constants.SERVER_URL}/tech-images/${username}`, {
         method: 'POST',
         body: formData,
       });

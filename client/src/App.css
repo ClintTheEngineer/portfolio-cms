@@ -45,6 +45,7 @@ h1{
 
 aside {
   float: right;
+  width: 50vw;
 }
 
 aside img {
@@ -52,6 +53,10 @@ aside img {
   height: 200px;
   width: 300px;
   margin-bottom: 1.5%;
+}
+
+#image-header {
+  text-align: center;
 }
 
 #asset-tag {

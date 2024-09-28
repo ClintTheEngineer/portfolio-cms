@@ -15,6 +15,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const nodemailer = require('nodemailer');
+const clientDomain = `https://portfolio-cms-7n8a.onrender.com`;
 
 const CanderDB = require('./db2');
 
@@ -297,7 +298,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
         },
       });
   
-      
+      const resetUrl = `${clientDomain}/validate-password?token=${token}`;
       const mailOptions = {
         from: 'Cander Portfolio Manager <no-reply@clinttheengineer.com>',
         to: email, 
@@ -305,7 +306,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
         html: `
           <p>You have requested to reset your password.</p>
           <p>Click the following link to reset your password:</p>
-          <a href="https://easy-fly-umbrella.cyclic.cloud/validate-password?token=${token}">Reset Password</a>
+          <a href=${clientDomain}>Reset Password</a>
         `,
       };
   

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Constants } from './Constants';
 
 export const Register = () => {
     const [username, setUsername] = useState('');
@@ -34,7 +35,7 @@ export const Register = () => {
       }
   
       try {
-        const response = await fetch('https://easy-fly-umbrella.cyclic.cloud/register', {
+        const response = await fetch(`${Constants.SERVER_URL}/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

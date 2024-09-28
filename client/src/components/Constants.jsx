@@ -2,10 +2,10 @@ export const Constants = {
     SERVER_URL: (() => {
         const currentBaseUrl = window.location.hostname;
         if (currentBaseUrl === 'cander-portfolio-cms.netlify.app') {
-            return 'https://cander-db.com';
+            return 'https://portfolio-cms-7n8a.onrender.com';
         } else {
-            return 'http://localhost:3333';
+            return 'http://localhost:5000';
         }
     })(),
-    APP_NAME: 'CanderDB'
+    APP_NAME: 'Cander CMS 🗝️'
 }

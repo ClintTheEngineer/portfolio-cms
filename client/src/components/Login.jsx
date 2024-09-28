@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Link } from "react-router-dom";
 import PropTypes from 'prop-types';
+import { Constants } from "./Constants";
 
 
 export const Login = () => {
@@ -25,7 +26,7 @@ export const Login = () => {
    const HandleLogin = async () => {
     try {
       const authHeader = `Bearer ${token}`;
-      const response = await fetch('https://easy-fly-umbrella.cyclic.cloud/login', {
+      const response = await fetch(`${Constants.SERVER_URL}/login`, {
         method: 'POST',
         headers: {
           'Authorization': authHeader,  

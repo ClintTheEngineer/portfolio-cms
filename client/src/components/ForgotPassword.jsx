@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { Constants } from "./Constants";
 
 export const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -9,7 +10,7 @@ export const ForgotPassword = () => {
 
     const handleResetPassword = async () => {
         try {
-            const response = await fetch(`https://easy-fly-umbrella.cyclic.cloud/forgot-password`, {
+            const response = await fetch(`${Constants.SERVER_URL}/forgot-password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

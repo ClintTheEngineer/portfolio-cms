@@ -78,6 +78,36 @@ app.get('/:username/projects/caption', async (req, res) => {
   }
 });
 
+app.get('/:username/projects/livelinks', async (req, res) => {
+  const username = req.params.username;
+
+  try {
+    const result = await pool.query('SELECT live_site_link FROM cms_portfolio_editor WHERE username = $1', [username]);
+
+    const livesitelinks = result.rows.map(entry => ({ live_site_link: entry.live_site_link }));
+
+    res.json(livesitelinks);
+  } catch (error) {
+    console.error('Database query error:', error.message);
+    res.status(500).send('Server error');
+  }
+});
+
+app.get('/:username/projects/github', async (req, res) => {
+  const username = req.params.username;
+
+  try {
+    const result = await pool.query('SELECT github_link FROM cms_portfolio_editor WHERE username = $1', [username]);
+
+    const github = result.rows.map(entry => ({ caption: entry.github_link }));
+
+    res.json(github);
+  } catch (error) {
+    console.error('Database query error:', error.message);
+    res.status(500).send('Server error');
+  }
+});
+
 
 /*
 app.get('/:username/projects/caption', async (req, res) => {

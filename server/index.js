@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.get('/users', async (req, res) => {
     try {
-        const users = await pool.query('SELECT * FROM Users');
+        const users = await pool.query('SELECT * FROM cms_users');
         res.json(users.rows)
     } catch (error) {
         console.error(error.message);
@@ -54,7 +54,7 @@ app.get('/get-projects', async (req, res) => {
 app.get('/:username/projects', async (req, res) => {
   try {
     const username = req.params.username;
-    const projects = await pool.query('SELECT * FROM Portfolio_Editor WHERE username = $1 ORDER BY id ASC', [username]);
+    const projects = await pool.query('SELECT * FROM cms_portfolio_editor WHERE username = $1 ORDER BY id ASC', [username]);
     res.json(projects.rows);
   } catch (error) {
     console.error(error.message);
@@ -63,6 +63,23 @@ app.get('/:username/projects', async (req, res) => {
 });
 
 
+app.get('/:username/projects/caption', async (req, res) => {
+  const username = req.params.username;
+
+  try {
+    const result = await pool.query('SELECT caption FROM cms_portfolio_editor WHERE username = $1', [username]);
+
+    const captions = result.rows.map(entry => ({ caption: entry.caption }));
+
+    res.json(captions);
+  } catch (error) {
+    console.error('Database query error:', error.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
+/*
 app.get('/:username/projects/caption', async (req, res) => {
   try {
     const username = req.params.username;
@@ -94,7 +111,7 @@ app.get('/:username/projects/caption', async (req, res) => {
         res.json(captions);
       } catch (parseError) {
         console.error('Error parsing JSON:', parseError);
-        res.status(500).send(`Error parsing JSON from the remote server`);
+        res.status(500).send('Error parsing JSON from the remote server');
       }
     });
 
@@ -103,6 +120,8 @@ app.get('/:username/projects/caption', async (req, res) => {
     res.status(500).send('Server error');
   }
 });
+
+
 
 
 app.get('/:username/projects/caption/:id', async (req, res) => {
@@ -153,29 +172,16 @@ app.get('/:username/projects/caption/:id', async (req, res) => {
   }
 });
 
+*/
 
 
-
-
-// Route to get all projects' captions for a specific username
-app.get('/:username/projects/caption', async (req, res) => {
-  try {
-    const username = req.params.username;
-    const projects = await pool.query('SELECT caption FROM Portfolio_Editor WHERE username = $1', [username]);
-    const captions = projects.rows.map(project => project.caption);
-    res.json(captions);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Server error');
-  }
-});
 
 // Route to get a specific project's caption by ID for a specific username
 app.get('/:username/projects/caption/:id', async (req, res) => {
   try {
     const username = req.params.username;
     const id = req.params.id;
-    const project = await pool.query('SELECT caption FROM Portfolio_Editor WHERE username = $1 AND id = $2', [username, id]);
+    const project = await pool.query('SELECT caption FROM cms_portfolio_editor WHERE username = $1 AND entry_id = $2', [username, id]);
     if (project.rows.length === 0) {
       return res.status(404).json({ message: 'Project not found' });
     }
@@ -192,7 +198,7 @@ app.post('/login', async (req, res) => {
     try {
       const { username, password } = req.body;
       const user = await pool.query(
-        'SELECT * FROM Users WHERE username = $1',
+        'SELECT * FROM cms_users WHERE username = $1',
         [username]
       );
       if (user.rows.length === 0) {
@@ -230,7 +236,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
     }
       
     const existingUser = await pool.query(
-      'SELECT * FROM Users WHERE username = $1',
+      'SELECT * FROM cms_users WHERE username = $1',
       [username]
     );
     
@@ -245,7 +251,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
 
     // Check if the email already exists in the database
     const existingEmail = await pool.query(
-      'SELECT * FROM Users WHERE email = $1',
+      'SELECT * FROM cms_users WHERE email = $1',
       [email]
     );
 
@@ -257,7 +263,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
     const hashedPassword = await bcrypt.hash(password, 10);
   
       await pool.query(
-        'INSERT INTO Users (username, email, hashed_password) VALUES ($1, $2, $3)',
+        'INSERT INTO cms_users (username, email, hashed_password) VALUES ($1, $2, $3)',
         [username, email, hashedPassword]
       );
       res.setHeader('Content-Type', 'application/json')
@@ -286,7 +292,7 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$
   
       // Store the token and its expiration timestamp in the database
       await pool.query(
-        'INSERT INTO reset_tokens (token, email, expiration_time) VALUES ($1::uuid, $2, $3)',
+        'INSERT INTO cms_reset_tokens (token, email, expiration_time) VALUES ($1::uuid, $2, $3)',
         [token, email, expirationTime]
       );
   
@@ -345,7 +351,7 @@ app.post('/reset-password/:token', async (req, res) => {
     const { token } = req.params;
     const { newPassword } = req.body;
 
-    const query = 'SELECT email FROM reset_tokens WHERE token = $1 AND expiration_time > NOW()';
+    const query = 'SELECT email FROM cms_reset_tokens WHERE token = $1 AND expiration_time > NOW()';
     const result = await pool.query(query, [token]);
 
     if (result.rows.length === 0) {
@@ -355,11 +361,11 @@ app.post('/reset-password/:token', async (req, res) => {
     const email = result.rows[0].email;
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-    const updateQuery = 'UPDATE Users SET password_hash = $1 WHERE email = $2';
+    const updateQuery = 'UPDATE cms_users SET hashed_password = $1 WHERE email = $2';
     await pool.query(updateQuery, [hashedPassword, email]);
 
     // Delete the used token from the reset_tokens table
-    await pool.query('DELETE FROM reset_tokens WHERE token = $1', [token]);
+    await pool.query('DELETE FROM cms_reset_tokens WHERE token = $1', [token]);
 
     res.status(200).json({ message: 'Password reset successful' });
   } catch (error) {

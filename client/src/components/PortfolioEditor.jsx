@@ -12,13 +12,20 @@ export const PortfolioEditor = ({ onSubmit }) => {
   const [optionsTotal, setOptionsTotal] = useState(0);
 
   const username = localStorage.getItem('username');
+  const token = localStorage.getItem('token');
   const navigate = useNavigate();
 
 
 useEffect(() => {
   const fetchOptionsTotal = async () => {
     try {
-      const response = await fetch(`${Constants.SERVER_URL}/${username}/projects`);
+      const response = await fetch(`${Constants.SERVER_URL}/${username}/projects`, {
+        method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+      });
       if (response.ok) {
         const data = await response.json();
         setOptionsTotal(data.length);        
@@ -30,7 +37,7 @@ useEffect(() => {
     }
   };
   fetchOptionsTotal();
-}, [username]);
+}, [username, token]);
 
 
 

@@ -7,42 +7,64 @@ export const Uploads = () => {
   const [links, setLinks] = useState([]);
   const [githubLinks, setGitHubLinks] = useState([]);
   const username = localStorage.getItem('username');
+  const token = localStorage.getItem('token');
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch project data
-        const projectsResponse = await fetch(`${Constants.SERVER_URL}/${username}/projects`);
+        const projectsResponse = await fetch(`${Constants.SERVER_URL}/${username}/projects`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        });
         if (!projectsResponse.ok) {
           throw new Error('Failed to fetch projects');
         }
         const projectData = await projectsResponse.json();
-
-        // Fetch captions, links, and GitHub links concurrently
         const captionPromises = projectData.map((_, index) =>
-          fetch(`${Constants.SERVER_URL}/${username}/projects/caption/${index + 1}`).then(response => 
+          fetch(`${Constants.SERVER_URL}/${username}/projects/caption/${index + 1}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          }).then(response => 
             response.ok ? response.text() : `Caption for image ${index + 1} not found`
           )
         );
 
         const linkPromises = projectData.map((_, index) =>
-          fetch(`${Constants.SERVER_URL}/${username}/projects/livelinks/${index + 1}`).then(response => 
+          fetch(`${Constants.SERVER_URL}/${username}/projects/livelinks/${index + 1}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          }).then(response => 
             response.ok ? response.text() : `Link for image ${index + 1} not found`
           )
         );
 
         const githubPromises = projectData.map((_, index) =>
-          fetch(`${Constants.SERVER_URL}/${username}/projects/github/${index + 1}`).then(response => 
+          fetch(`${Constants.SERVER_URL}/${username}/projects/github/${index + 1}`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          }).then(response => 
             response.ok ? response.text() : `GitHub link for image ${index + 1} not found`
           )
         );
 
-        // Fetch image URLs
-        const imagePromises = projectData.map((_, index) => 
+       
+       const imagePromises = projectData.map((_, index) => 
           `${Constants.SERVER_URL}/uploads/${username}/${username}_image_${index + 1}.png`
         );
 
-        // Wait for all fetches to complete
+        
         const [captions, links, githubLinks, imageUrls] = await Promise.all([
           Promise.all(captionPromises),
           Promise.all(linkPromises),
@@ -50,7 +72,6 @@ export const Uploads = () => {
           Promise.all(imagePromises)
         ]);
 
-        // Update state with fetched data
         setCaptions(captions);
         setLinks(links);
         setGitHubLinks(githubLinks);
@@ -62,7 +83,7 @@ export const Uploads = () => {
     };
 
     fetchData();
-  }, [username]);
+  }, [username, token]);
 
   return (
     <section>

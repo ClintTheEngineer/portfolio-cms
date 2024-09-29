@@ -4,7 +4,7 @@ export const Constants = {
         if (currentBaseUrl === 'cander-portfolio-cms.netlify.app') {
             return 'https://portfolio-cms-server-eiwk.onrender.com';
         } else {
-            return 'http://localhost:5000';
+            return 'https://portfolio-cms-server-eiwk.onrender.com';
         }
     })(),
     APP_NAME: 'Cander CMS 🗝️'

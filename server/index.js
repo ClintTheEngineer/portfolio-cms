@@ -54,7 +54,7 @@ app.get('/get-projects', async (req, res) => {
 app.get('/:username/projects', async (req, res) => {
   try {
     const username = req.params.username;
-    const projects = await pool.query('SELECT * FROM cms_portfolio_editor WHERE username = $1 ORDER BY id ASC', [username]);
+    const projects = await pool.query('SELECT * FROM cms_portfolio_editor WHERE username = $1 ORDER BY entry_id ASC', [username]);
     res.json(projects.rows);
   } catch (error) {
     console.error(error.message);

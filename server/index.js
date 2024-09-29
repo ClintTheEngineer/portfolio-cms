@@ -25,33 +25,34 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
+const authenticateToken = (req, res, next) => {
+  const token = req.headers['authorization'] && req.headers['authorization'].split(' ')[1]; 
 
-app.get('/users', async (req, res) => {
-    try {
-        const users = await pool.query('SELECT * FROM cms_users');
-        res.json(users.rows)
-    } catch (error) {
-        console.error(error.message);
-        res.status(500).send('Server error')
-    }
-})
-
-
-
-app.get('/get-projects', async (req, res) => {
-  try {
-         const projects = await pool.query('SELECT * FROM Portfolio_Editor');
-         res.json(projects.rows)
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Server error')
+  if (!token) {
+      return res.sendStatus(401);
   }
-})
+
+  jwt.verify(token, secretKey, (err, decoded) => {
+      if (err) {
+          return res.sendStatus(403); 
+      }
+      req.user = decoded.user; 
+      next(); 
+  });
+};
+
+const authorizeResourceAccess = (req, res, next) => {
+  const resourceUserId = req.params.username;
+  
+  if (req.user !== resourceUserId) {
+    return res.sendStatus(403); 
+  }
+  
+  next();
+};
 
 
-
-
-app.get('/:username/projects', async (req, res) => {
+app.get('/:username/projects', authenticateToken, authorizeResourceAccess, async (req, res) => {
   try {
     const username = req.params.username;
     const projects = await pool.query('SELECT * FROM cms_portfolio_editor WHERE username = $1 ORDER BY entry_id ASC', [username]);
@@ -63,7 +64,7 @@ app.get('/:username/projects', async (req, res) => {
 });
 
 
-app.get('/:username/projects/caption', async (req, res) => {
+app.get('/:username/projects/caption', authenticateToken, authorizeResourceAccess, async (req, res) => {
   const username = req.params.username;
 
   try {
@@ -78,7 +79,7 @@ app.get('/:username/projects/caption', async (req, res) => {
   }
 });
 
-app.get('/:username/projects/livelinks', async (req, res) => {
+app.get('/:username/projects/livelinks', authenticateToken, authorizeResourceAccess, async (req, res) => {
   const username = req.params.username;
 
   try {
@@ -93,7 +94,7 @@ app.get('/:username/projects/livelinks', async (req, res) => {
   }
 });
 
-app.get('/:username/projects/github', async (req, res) => {
+app.get('/:username/projects/github', authenticateToken, authorizeResourceAccess, async (req, res) => {
   const username = req.params.username;
 
   try {
@@ -207,7 +208,7 @@ app.get('/:username/projects/caption/:id', async (req, res) => {
 
 
 // Route to get a specific project's caption by ID for a specific username
-app.get('/:username/projects/caption/:id', async (req, res) => {
+app.get('/:username/projects/caption/:id', authenticateToken, authorizeResourceAccess, async (req, res) => {
   try {
     const username = req.params.username;
     const id = req.params.id;
@@ -222,7 +223,7 @@ app.get('/:username/projects/caption/:id', async (req, res) => {
   }
 });
 
-app.get('/:username/projects/livelinks/:id', async (req, res) => {
+app.get('/:username/projects/livelinks/:id', authenticateToken, authorizeResourceAccess, async (req, res) => {
   try {
     const username = req.params.username;
     const id = req.params.id;
@@ -237,7 +238,7 @@ app.get('/:username/projects/livelinks/:id', async (req, res) => {
   }
 });
 
-app.get('/:username/projects/github/:id', async (req, res) => {
+app.get('/:username/projects/github/:id', authenticateToken, authorizeResourceAccess, async (req, res) => {
   try {
     const username = req.params.username;
     const id = req.params.id;
@@ -271,8 +272,7 @@ app.post('/login', async (req, res) => {
       if (!isPasswordValid) {
         return res.status(401).json('Invalid credentials');
       }
-      
-      const token = jwt.sign({ user: user.rows[0].user_id }, secretKey);      
+      const token = jwt.sign({ user: user.rows[0].username }, secretKey);      
       
       res.json({ token, username });
     } catch (error) {
@@ -283,7 +283,7 @@ app.post('/login', async (req, res) => {
   });
 
 
-  app.post('/register', async (req, res) => {
+app.post('/register', async (req, res) => {
     try {
       const { username, email, password } = req.body;
       if(!password) {

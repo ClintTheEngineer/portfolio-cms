@@ -56,7 +56,6 @@ app.get('/:username/projects', async (req, res) => {
     const username = req.params.username;
     const projects = await pool.query('SELECT * FROM cms_portfolio_editor WHERE username = $1 ORDER BY entry_id ASC', [username]);
     res.json(projects.rows);
-    console.log(projects.rows)
   } catch (error) {
     console.error(error.message);
     res.status(500).send('Server error');

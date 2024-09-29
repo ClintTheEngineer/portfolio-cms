@@ -9,10 +9,30 @@ export const PortfolioEditor = ({ onSubmit }) => {
   const [caption, setCaption] = useState('');
   const [image, setImage] = useState([]);
   const [selectedId, setSelectedId] = useState(1);
+  const [optionsTotal, setOptionsTotal] = useState(0);
 
   const username = localStorage.getItem('username');
   const navigate = useNavigate();
-  const optionsTotal = 6;
+
+
+useEffect(() => {
+  const fetchOptionsTotal = async () => {
+    try {
+      const response = await fetch(`${Constants.SERVER_URL}/${username}/projects`);
+      if (response.ok) {
+        const data = await response.json();
+        setOptionsTotal(data.length);        
+      } else {
+        console.error('Failed to fetch options');
+      }
+    } catch (error) {
+      console.error('Error fetching options:', error);
+    }
+  };
+  fetchOptionsTotal();
+}, [username]);
+
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');

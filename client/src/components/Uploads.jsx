@@ -15,6 +15,7 @@ export const Uploads = () => {
         if (response.ok) {
           const data = await response.json();
           setImages(data);
+          console.log(data)
           // Fetch captions for each image
           const captionPromises = data.map(async (_, index) => {
             const response = await fetch(`${Constants.SERVER_URL}/${username}/projects/caption/${index+1}`);

@@ -222,6 +222,38 @@ app.get('/:username/projects/caption/:id', async (req, res) => {
   }
 });
 
+app.get('/:username/projects/livelinks/:id', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const id = req.params.id;
+    const project = await pool.query('SELECT live_site_link FROM cms_portfolio_editor WHERE username = $1 AND entry_id = $2', [username, id]);
+    if (project.rows.length === 0) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    res.json(project.rows[0].live_site_link);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+});
+
+app.get('/:username/projects/github/:id', async (req, res) => {
+  try {
+    const username = req.params.username;
+    const id = req.params.id;
+    const project = await pool.query('SELECT github_link FROM cms_portfolio_editor WHERE username = $1 AND entry_id = $2', [username, id]);
+    if (project.rows.length === 0) {
+      return res.status(404).json({ message: 'Project not found' });
+    }
+    res.json(project.rows[0].github_link);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send('Server error');
+  }
+});
+
+
+
 
 
 app.post('/login', async (req, res) => {
